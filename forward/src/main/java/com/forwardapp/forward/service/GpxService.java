@@ -193,4 +193,14 @@ public class GpxService {
             return null;
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<GpxMetadata> getByUserId(Long userId) {
+        return repository.findAllByUser_IdOrderByStartTimeDesc(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<GpxMetadata> getByIdAndUserId(Long gpxId, Long userId) {
+        return repository.findByIdAndUser_Id(gpxId, userId);
+    }
 }

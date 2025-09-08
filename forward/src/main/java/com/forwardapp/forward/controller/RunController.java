@@ -5,7 +5,7 @@ import com.forwardapp.forward.dto.RouteGeoJsonDto;
 import com.forwardapp.forward.model.GpxMetadata;
 import com.forwardapp.forward.model.User;
 import com.forwardapp.forward.service.GpxService;
-import com.forwardapp.forward.service.UserService;
+import com.forwardapp.forward.service.UserServiceImpl;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -22,9 +22,9 @@ import java.util.List;
 public class RunController {
 
     private final GpxService gpxService;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
-    public RunController(GpxService gpxService, UserService userService) {
+    public RunController(GpxService gpxService, UserServiceImpl userService) {
         this.gpxService = gpxService;
         this.userService = userService;
     }

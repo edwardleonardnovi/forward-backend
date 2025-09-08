@@ -13,41 +13,32 @@ import java.io.IOException;
 
 @Component
 public class JwtFilter extends OncePerRequestFilter {
+  private final JwtService jwtService;
+  private final UserDetailsService uds;
 
-    private final JwtService jwtService;
-    private final UserService userService;
+  public JwtFilter(JwtService jwtService, UserDetailsService uds) {
+    this.jwtService = jwtService; this.uds = uds;
+  }
 
-    public JwtFilter(JwtService jwtService, UserService userService) {
-        this.jwtService = jwtService;
-        this.userService = userService;
-    }
+  @Override
+  protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+      throws ServletException, IOException {
+    String hdr = req.getHeader("Authorization");
+    if (hdr == null || !hdr.startsWith("Bearer ")) { chain.doFilter(req, res); return; }
+    String token = hdr.substring(7);
+    String email;
+    try { email = jwtService.extractUsername(token); } catch (Exception e) { chain.doFilter(req, res); return; }
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response,
-                                    FilterChain filterChain) throws ServletException, IOException {
-
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+    if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+      try {
+        UserDetails ud = uds.loadUserByUsername(email);
+        if (jwtService.isTokenValid(token, ud)) {
+          var auth = new UsernamePasswordAuthenticationToken(ud, null, ud.getAuthorities());
+          auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
+          SecurityContextHolder.getContext().setAuthentication(auth);
         }
-
-        String token = authHeader.substring(7);
-        String email = jwtService.extractUsername(token);
-        System.out.println("Auth header: " + authHeader);
-        System.out.println("Extracted email from JWT: " + email);
-        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userService.loadUserByUsername(email);
-            if (jwtService.isTokenValid(token, userDetails)) {
-                UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
-        }
-
-        filterChain.doFilter(request, response);
+      } catch (UsernameNotFoundException ignore) {}
     }
+    chain.doFilter(req, res);
+  }
 }

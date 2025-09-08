@@ -11,4 +11,7 @@ import java.util.Optional;
 public interface GpxMetadataRepository extends JpaRepository<GpxMetadata, Long> {
     List<GpxMetadata> findByUser(User user);
     Optional<GpxMetadata> findById(Long id);
+
+    List<GpxMetadata> findAllByUser_IdOrderByStartTimeDesc(Long userId);
+    Optional<GpxMetadata> findByIdAndUser_Id(Long id, Long userId);
 }

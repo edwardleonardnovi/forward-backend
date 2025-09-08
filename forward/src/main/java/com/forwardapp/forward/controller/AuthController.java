@@ -8,7 +8,7 @@ import com.forwardapp.forward.model.User;
 import com.forwardapp.forward.model.Role;
 import com.forwardapp.forward.service.CoachService;
 import com.forwardapp.forward.service.JwtService;
-import com.forwardapp.forward.service.UserService;
+import com.forwardapp.forward.service.UserServiceImpl;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
@@ -24,12 +24,12 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authManager;
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final CoachService coachService;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    public AuthController(AuthenticationManager authManager, UserService userService, CoachService coachService, JwtService jwtService, PasswordEncoder passwordEncoder) {
+    public AuthController(AuthenticationManager authManager, UserServiceImpl userService, CoachService coachService, JwtService jwtService, PasswordEncoder passwordEncoder) {
         this.authManager = authManager;
         this.userService = userService;
         this.coachService = coachService;
@@ -75,9 +75,16 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
             );
 
-            UserDetails user = (UserDetails) auth.getPrincipal();
-            String token = jwtService.generateToken(user.getUsername());
-            return ResponseEntity.ok(new AuthResponse(token));
+            UserDetails principal = (UserDetails) auth.getPrincipal();
+            String email = principal.getUsername();
+
+            String role = coachService.findByEmail(email).isPresent()
+                    ? "COACH"
+                    : "USER";
+
+            String token = jwtService.generateToken(email);
+
+            return ResponseEntity.ok(new AuthResponse(token, role));
 
         } catch (AuthenticationException e) {
             e.printStackTrace();

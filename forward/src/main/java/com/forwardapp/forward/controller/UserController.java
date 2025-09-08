@@ -4,7 +4,7 @@ import com.forwardapp.forward.dto.GpxMetadataDto;
 import com.forwardapp.forward.model.GpxMetadata;
 import com.forwardapp.forward.model.User;
 import com.forwardapp.forward.service.GpxService;
-import com.forwardapp.forward.service.UserService;
+import com.forwardapp.forward.service.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -19,10 +19,10 @@ import java.io.IOException;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final GpxService gpxService;
 
-    public UserController(UserService userService, GpxService gpxService) {
+    public UserController(UserServiceImpl userService, GpxService gpxService) {
         this.userService = userService;
         this.gpxService = gpxService;
     }
