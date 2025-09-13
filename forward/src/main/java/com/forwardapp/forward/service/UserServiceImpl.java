@@ -1,11 +1,12 @@
 package com.forwardapp.forward.service;
 
+import com.forwardapp.forward.model.CoachAthlete;
 import com.forwardapp.forward.model.User;
 import com.forwardapp.forward.repository.CoachLinkRepository;
 import com.forwardapp.forward.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,5 +59,28 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public boolean isAthleteOfCoach(Long coachId, Long userId) {
         return coachLinkRepository.existsByCoachIdAndAthleteId(coachId, userId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findAthleteByEmail(String email) {
+        if (email == null || email.isBlank()) return Optional.empty();
+        return userRepository.findByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<User> findAthleteById(Long userId) {
+        if (userId == null) return Optional.empty();
+        return userRepository.findById(userId);
+    }
+
+    @Override
+    @Transactional
+    public void linkCoachToAthlete(Long coachId, Long athleteId) {
+        if (coachLinkRepository.existsByCoachIdAndAthleteId(coachId, athleteId)) {
+            return;
+        }
+        coachLinkRepository.save(new CoachAthlete(coachId, athleteId));
     }
 }

@@ -4,13 +4,10 @@ public class RegisterRequest {
     private String email;
     private String username;
     private String password;
-    private String role; // "USER" of "COACH"
+    private String role; 
 
-    // Coach-specifieke velden
     private String bio;
     private String specialty;
-
-    // Getters en setters
 
     public String getEmail() {
         return email;

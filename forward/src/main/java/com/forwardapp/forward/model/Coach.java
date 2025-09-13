@@ -23,7 +23,6 @@ public class Coach {
     @Enumerated(EnumType.STRING)
     private Role role = Role.COACH;
 
-    // Constructors
     public Coach() {
     }
 
@@ -36,7 +35,6 @@ public class Coach {
         this.role = Role.COACH;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }

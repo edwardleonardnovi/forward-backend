@@ -22,7 +22,6 @@ public class CoachService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Voor Spring Security (bij login)
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         Coach coach = coachRepository.findByEmail(email)
@@ -38,13 +37,11 @@ public class CoachService implements UserDetailsService {
        coachRepository.save(coach);
     }
 
-    // Voor registratie
     public Coach register(Coach coach) {
         coach.setPassword(passwordEncoder.encode(coach.getPassword()));
         return coachRepository.save(coach);
     }
 
-    // Voor login-validatie
     public boolean checkCredentials(String email, String rawPassword) {
         Optional<Coach> optionalCoach = coachRepository.findByEmail(email);
         return optionalCoach

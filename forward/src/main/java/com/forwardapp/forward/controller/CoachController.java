@@ -2,7 +2,6 @@ package com.forwardapp.forward.controller;
 
 import com.forwardapp.forward.dto.GpxMetadataDto;
 import com.forwardapp.forward.model.Coach;
-import com.forwardapp.forward.model.User;
 import com.forwardapp.forward.service.CoachService;
 import com.forwardapp.forward.service.GpxService;
 import com.forwardapp.forward.service.UserServiceImpl;
@@ -28,6 +27,32 @@ public class CoachController {
         this.userService = userService;
         this.gpxService = gpxService;
         this.coachService = coachService;
+    }
+
+    @PostMapping("/athletes")
+    public UserDto addAthlete(@AuthenticationPrincipal(expression = "username") String coachEmail,
+                              @RequestBody AddAthleteRequest req) {
+        Long coachId = coachService.findByEmail(coachEmail)
+                .map(Coach::getId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Coach niet gevonden"));
+
+        var athleteOpt =
+                (req.athleteId() != null)
+                        ? userService.findAthleteById(req.athleteId())
+                        : (req.email() != null && !req.email().isBlank()
+                            ? userService.findAthleteByEmail(req.email().trim())
+                            : null);
+
+        if (athleteOpt == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Geef een email of athleteId op.");
+        }
+
+        var athlete = athleteOpt.orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND, "Athlete niet gevonden"));
+
+        userService.linkCoachToAthlete(coachId, athlete.getId());
+
+        return new UserDto(athlete.getId(), athlete.getEmail());
     }
 
     @GetMapping("/athletes")

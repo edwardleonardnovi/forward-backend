@@ -73,12 +73,12 @@ public class RunController {
         if (file.isEmpty()) return ResponseEntity.badRequest().build();
 
         try {
-            byte[] bytes = file.getBytes(); // lees één keer
+            byte[] bytes = file.getBytes();
 
             var meta = gpxService.parseGpx(new ByteArrayInputStream(bytes));
             meta.setUser(user);
             meta.setFilename(file.getOriginalFilename());
-            meta.setGpxBytes(bytes); // <-- opslaan
+            meta.setGpxBytes(bytes);
 
             gpxService.saveMetadata(meta);
             return ResponseEntity.ok(GpxMetadataDto.from(meta));

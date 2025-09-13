@@ -48,7 +48,7 @@ public class GpxMetadata {
     public LocalDateTime getStartTime() { return startTime; }
     public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
 
-    public byte[] getGpxBytes() { return gpxBytes; }        // <-- getters/setters
+    public byte[] getGpxBytes() { return gpxBytes; }  
     public void setGpxBytes(byte[] gpxBytes) { this.gpxBytes = gpxBytes; }
 
     public User getUser() { return user; }

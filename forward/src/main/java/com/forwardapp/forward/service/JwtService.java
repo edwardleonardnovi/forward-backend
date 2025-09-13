@@ -15,7 +15,7 @@ public class JwtService {
 
     public String generateToken(String username) {
         long now = System.currentTimeMillis();
-        long expiry = now + 1000 * 60 * 60; // 1 uur geldig
+        long expiry = now + 1000 * 60 * 60;
 
         String header = Base64.getUrlEncoder().encodeToString("{\"alg\":\"HS256\",\"typ\":\"JWT\"}".getBytes());
         String payload = String.format("{\"sub\":\"%s\",\"iat\":%d,\"exp\":%d}", username, now / 1000, expiry / 1000);
@@ -47,15 +47,12 @@ public class JwtService {
             String payload = parts[1];
             String signature = parts[2];
 
-            // Check signature
             String expectedSignature = hmacSha256(header + "." + payload, SECRET);
             if (!expectedSignature.equals(signature)) return false;
 
-            // Check username
             String username = extractUsername(token);
             if (username == null || !username.equals(userDetails.getUsername())) return false;
 
-            // Check expiration
             String payloadJson = new String(Base64.getUrlDecoder().decode(payload), StandardCharsets.UTF_8);
             String expString = payloadJson.split("\"exp\":")[1].split("}")[0].replaceAll("[^0-9]", "");
             long exp = Long.parseLong(expString) * 1000;
